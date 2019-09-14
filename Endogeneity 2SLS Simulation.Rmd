@@ -1,0 +1,125 @@
+---
+title: "Endogeneity Simulation"
+author: "Cort W. Rudolph"
+date: "September 13, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Required Packages
+```{r message=FALSE, warning=FALSE}
+library(simstandard)
+library(lavaan)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(tidyr)
+```
+
+# lavaan syntax for populationmodel
+```{r}
+populationModel <- '
+Y ~ .50*X
+Y ~ .50*Z
+X ~ .50*Z
+'
+```
+
+# Simulate data
+```{r}
+set.seed(1818)
+data <- sim_standardized(populationModel, n = 100000)
+```
+
+# Generate Instrument
+*Note:* e_X is the residual variance (i.e., error) of X from our model; it is the part of X that is unexplained  by Z
+```{r}
+set.seed(1818)
+TEMP <- rnorm(nrow(data)) # Creating some "noise"
+data$Z_instrument <- data$e_X + TEMP # Adding some "noise"
+```
+
+# Correlations
+```{r}
+cor(data)
+```
+
+# Replicate Population Model
+```{r}
+sampleModel <- '
+Y ~ X + Z
+X ~ Z
+'
+sem(sampleModel, data) %>% parameterestimates()
+```
+
+# Model 1 - Endogenous Predictor
+```{r}
+sampleModel <- 'Y ~ X'
+sem(sampleModel, data) %>% parameterestimates()
+```
+
+# Model 2 - 2SLS
+```{r}
+sampleModel <- '
+Y ~ X
+Y ~~ X
+X ~ Z_instrument
+'
+sem(sampleModel, data) %>% parameterestimates()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
