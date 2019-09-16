@@ -19,6 +19,7 @@ library(dplyr)
 library(ggplot2)
 library(tibble)
 library(tidyr)
+library(AER)
 ```
 
 # lavaan syntax for populationmodel
@@ -76,8 +77,13 @@ sem(sampleModel, data) %>% parameterestimates()
 
 
 
-
-
+# Check work using `ivreg` from `AER` (n.b., parameter estimates are equivalent)
+- Note form of equation: y ~ endogenous|instrument
+- More Here: https://rpubs.com/wsundstrom/t_ivreg
+```{r message=FALSE}
+ivregMod <- ivreg(Y ~ X|Z_instrument,  data = data)
+summary(ivregMod, vcov = sandwich, df = Inf, diagnostics = TRUE)
+```
 
 
 
